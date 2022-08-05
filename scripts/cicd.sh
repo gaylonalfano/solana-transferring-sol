@@ -2,7 +2,7 @@
 # NOTE I've modified this to fit my repo structure. I removed the --bpf-out-dir,
 # so that it keeps the default of target/deploy
 
-SOLANA_PROGRAMS=("calculator")
+SOLANA_PROGRAMS=("transfer")
 # SOLANA_PROGRAMS=("sum" "square" "calculator")
 
 case $1 in
