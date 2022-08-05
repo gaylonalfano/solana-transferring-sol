@@ -27,6 +27,10 @@ let user1Keypair: Keypair;
 let user2Keypair: Keypair;
 let user3Keypair: Keypair;
 let user4Keypair: Keypair;
+let user1Balance: number;
+let user2Balance: number;
+let user3Balance: number;
+let user4Balance: number;
 
 /*
  * 2. Helper functions
@@ -45,6 +49,7 @@ async function sendLamports(from: Keypair, to: PublicKey, amount: number) {
   // our instructions data inside the Transaction
   let data = Buffer.alloc(8); // 8 bytes to represent a number in lamports
   // Serialize the data into our Buffer
+  // Q: Where does 'value' come from? The instruction data struct??
   BufferLayout.ns64("value").encode(amount, data);
 
   let instruction = new TransactionInstruction({
@@ -53,10 +58,11 @@ async function sendLamports(from: Keypair, to: PublicKey, amount: number) {
     // A: The recipient doesn't sign, but they are writable, since
     // we'll be writing new values to that account.
     // A: SystemProgram isn't either but is needed since the actual
-    // transfer of SOL IS the SystemProgram!
+    // transfer of SOL IS the SystemProgram using system_instruction::transfer()!
+    // A: SystemProgram => solana_program::system_instruction::transfer()
     keys: [
-      { pubkey: from.publicKey, isSigner: true, isWritable: false },
-      { pubkey: to, isSigner: false, isWritable: true },
+      { pubkey: from.publicKey, isSigner: true, isWritable: false }, // sender
+      { pubkey: to, isSigner: false, isWritable: true }, // reciever
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
     programId: programId, // The program we wish to use (i.e, ours!)
@@ -69,6 +75,14 @@ async function sendLamports(from: Keypair, to: PublicKey, amount: number) {
     new Transaction().add(instruction),
     [from] // Signers i.e., Keypair of the wallet
   );
+}
+
+async function showWalletBalanceInSol(publicKey: PublicKey) {
+  connection = new Connection(SOLANA_NETWORK, "confirmed");
+  const response = await connection.getAccountInfo(publicKey);
+  console.log(response);
+  const balance = response.lamports / LAMPORTS_PER_SOL;
+  return balance;
 }
 
 /*
@@ -111,16 +125,29 @@ async function main() {
   console.log(`   user2 public key: ${user2Keypair.publicKey}`);
   await sendLamports(user1Keypair, user2Keypair.publicKey, 50000000);
   // Q: How to check the balance for these accounts?
+  // A: Send helper showWalletBalanceInSol()
+  user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
+  user2Balance = await showWalletBalanceInSol(user2Keypair.publicKey);
+  console.log(`user1 updated balance: ${user1Balance}`);
+  console.log(`user2 updated balance: ${user2Balance}`);
 
   console.log(`user3 sends some SOL to user4...`);
   console.log(`   user3 public key: ${user3Keypair.publicKey}`);
   console.log(`   user4 public key: ${user4Keypair.publicKey}`);
   await sendLamports(user3Keypair, user4Keypair.publicKey, 40000000);
+  user3Balance = await showWalletBalanceInSol(user3Keypair.publicKey);
+  user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
+  console.log(`user3 updated balance: ${user3Balance}`);
+  console.log(`user4 updated balance: ${user4Balance}`);
 
   console.log(`user4 sends some SOL to user1...`);
   console.log(`   user4 public key: ${user4Keypair.publicKey}`);
   console.log(`   user1 public key: ${user1Keypair.publicKey}`);
   await sendLamports(user4Keypair, user1Keypair.publicKey, 20000000);
+  user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
+  user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
+  console.log(`user4 updated balance: ${user4Balance}`);
+  console.log(`user1 updated balance: ${user1Balance}`);
 }
 
 /*
