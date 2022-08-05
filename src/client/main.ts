@@ -77,13 +77,19 @@ async function sendLamports(from: Keypair, to: PublicKey, amount: number) {
   );
 }
 
-async function showWalletBalanceInSol(publicKey: PublicKey) {
-  connection = new Connection(SOLANA_NETWORK, "confirmed");
-  const response = await connection.getAccountInfo(publicKey);
-  console.log(response);
-  const balance = response.lamports / LAMPORTS_PER_SOL;
-  return balance;
-}
+// FIXME Need to use a try/catch here in case no response
+// async function showWalletBalanceInSol(publicKey: PublicKey) {
+//   connection = new Connection(SOLANA_NETWORK, "confirmed");
+//   const response = await connection.getAccountInfo(publicKey);
+//   // console.log(response);
+//   if (response.lamports) {
+//     const balance = response?.lamports / LAMPORTS_PER_SOL;
+//     return balance;
+//   } else {
+//     console.log("Unable to retrieve wallet balance!");
+//     return 0;
+//   }
+// }
 
 /*
  * 2. Simulate transferring SOL between accounts
@@ -106,18 +112,24 @@ async function main() {
   // NOTE I believe we don't grab our local keypair this time since we're using
   // these other keypairs to initiate the transactions. We have the keypairs to sign
   // the transaction, so that should be why we don't get my local keypair
-  user1Keypair = createKeypairFromFile(__dirname + "../accounts/user1.json");
-  user2Keypair = createKeypairFromFile(__dirname + "../accounts/user2.json");
-  user3Keypair = createKeypairFromFile(__dirname + "../accounts/user3.json");
-  user4Keypair = createKeypairFromFile(__dirname + "../accounts/user4.json");
+  user1Keypair = createKeypairFromFile(__dirname + "/../accounts/user1.json");
+  user2Keypair = createKeypairFromFile(__dirname + "/../accounts/user2.json");
+  user3Keypair = createKeypairFromFile(__dirname + "/../accounts/user3.json");
+  user4Keypair = createKeypairFromFile(__dirname + "/../accounts/user4.json");
 
   // NOTE: FOR TESTING ONLY: Ensure these accounts have SOL in them
-  // await connection.confirmTransaction(
-  //   await connection.requestAirdrop(user1Keypair.publicKey, LAMPORTS_PER_SOL)
-  // );
-  // await connection.confirmTransaction(
-  //   await connection.requestAirdrop(user2Keypair.publicKey, LAMPORTS_PER_SOL)
-  // );
+  await connection.confirmTransaction(
+    await connection.requestAirdrop(user1Keypair.publicKey, LAMPORTS_PER_SOL)
+  );
+  await connection.confirmTransaction(
+    await connection.requestAirdrop(user2Keypair.publicKey, LAMPORTS_PER_SOL)
+  );
+  await connection.confirmTransaction(
+    await connection.requestAirdrop(user3Keypair.publicKey, LAMPORTS_PER_SOL)
+  );
+  await connection.confirmTransaction(
+    await connection.requestAirdrop(user4Keypair.publicKey, LAMPORTS_PER_SOL)
+  );
 
   // 5. Transact with program using our helper sendLamports() to simulate transfer
   console.log(`user1 sends some SOL to user2...`);
@@ -126,28 +138,28 @@ async function main() {
   await sendLamports(user1Keypair, user2Keypair.publicKey, 50000000);
   // Q: How to check the balance for these accounts?
   // A: Send helper showWalletBalanceInSol()
-  user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
-  user2Balance = await showWalletBalanceInSol(user2Keypair.publicKey);
-  console.log(`user1 updated balance: ${user1Balance}`);
-  console.log(`user2 updated balance: ${user2Balance}`);
+  // user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
+  // user2Balance = await showWalletBalanceInSol(user2Keypair.publicKey);
+  // console.log(`user1 updated balance: ${user1Balance}`);
+  // console.log(`user2 updated balance: ${user2Balance}`);
 
   console.log(`user3 sends some SOL to user4...`);
   console.log(`   user3 public key: ${user3Keypair.publicKey}`);
   console.log(`   user4 public key: ${user4Keypair.publicKey}`);
   await sendLamports(user3Keypair, user4Keypair.publicKey, 40000000);
-  user3Balance = await showWalletBalanceInSol(user3Keypair.publicKey);
-  user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
-  console.log(`user3 updated balance: ${user3Balance}`);
-  console.log(`user4 updated balance: ${user4Balance}`);
+  // user3Balance = await showWalletBalanceInSol(user3Keypair.publicKey);
+  // user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
+  // console.log(`user3 updated balance: ${user3Balance}`);
+  // console.log(`user4 updated balance: ${user4Balance}`);
 
   console.log(`user4 sends some SOL to user1...`);
   console.log(`   user4 public key: ${user4Keypair.publicKey}`);
   console.log(`   user1 public key: ${user1Keypair.publicKey}`);
   await sendLamports(user4Keypair, user1Keypair.publicKey, 20000000);
-  user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
-  user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
-  console.log(`user4 updated balance: ${user4Balance}`);
-  console.log(`user1 updated balance: ${user1Balance}`);
+  // user4Balance = await showWalletBalanceInSol(user4Keypair.publicKey);
+  // user1Balance = await showWalletBalanceInSol(user1Keypair.publicKey);
+  // console.log(`user4 updated balance: ${user4Balance}`);
+  // console.log(`user1 updated balance: ${user1Balance}`);
 }
 
 /*

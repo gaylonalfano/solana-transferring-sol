@@ -12,7 +12,7 @@
     "build": "./scripts/cicd.sh build",
     "deploy": "./scripts/cicd.sh deploy",
     "reset-and-build": "./scripts/cicd.sh reset-and-build",
-    "simulation": "ts-node .src/client/main.ts",
+    "simulation": "ts-node src/client/main.ts",
     "example:sum": "ts-node ./src/client/sum.ts",
     "example:square": "ts-node ./src/client/square.ts",
     "example:calculator": "ts-node ./src/client/calculator.ts"
@@ -20,7 +20,8 @@
   "dependencies": {
     "@solana/buffer-layout": "^4.0.0",
     "@solana/web3.js": "^1.50.1",
-    "buffer-layout": "^1.2.2"
+    "buffer-layout": "^1.2.2",
+    "mz": "^2.7.0"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
