@@ -1,0 +1,6 @@
+node_modules/
+src/programs/sum/target/
+src/programs/square/target/
+src/programs/calculator/target/
+test-ledger/
+
